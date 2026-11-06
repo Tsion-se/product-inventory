@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    # golang-migrate files: sqlc reads the *.up.sql files and ignores *.down.sql
+    schema: "migrations"
+    queries: "internal/product/queries.sql"
+    gen:
+      go:
+        package: "productdb"
+        out: "internal/product/productdb"
+        sql_package: "pgx/v5"
+        emit_empty_slices: true

@@ -1,0 +1,90 @@
+### Product Inventory API - sample requests
+### Works with the VS Code "REST Client" extension and JetBrains HTTP Client.
+
+@host = http://localhost:8080
+@base = {{host}}/api/v1/products
+
+### Health check
+GET {{host}}/healthz
+
+### Create a product
+POST {{base}}
+Content-Type: application/json
+
+{
+  "name": "ProBook 15 Laptop",
+  "sku": "LAP-PRO-15",
+  "description": "15-inch laptop",
+  "price": 1499.99,
+  "stock_quantity": 12,
+  "status": "active"
+}
+
+### Create with defaults (status=draft, stock_quantity=0)
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "Minimal Product", "sku": "MIN-001", "price": 9.5 }
+
+### Validation error (400): empty name, negative price, bad status
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "", "sku": "BAD-1", "price": -1, "status": "bogus" }
+
+### Duplicate SKU (409) - run the first create twice
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "Duplicate", "sku": "LAP-PRO-15", "price": 1 }
+
+### Malformed JSON (400)
+POST {{base}}
+Content-Type: application/json
+
+{ "name":
+
+### List (defaults: page=1, page_size=10)
+GET {{base}}
+
+### List with pagination and status filter
+GET {{base}}?page=1&page_size=5&status=active
+
+### "limit" works as an alias for page_size
+GET {{base}}?limit=3
+
+### Bonus: search by name (case-insensitive, partial)
+GET {{base}}?q=laptop
+
+### Bonus: low stock (stock_quantity <= 5)
+GET {{base}}?low_stock=true
+
+### Get one product
+GET {{base}}/1
+
+### Invalid ID (400)
+GET {{base}}/abc
+
+### Not found (404)
+GET {{base}}/999999
+
+### Update (PUT) - only the supplied fields change
+PUT {{base}}/1
+Content-Type: application/json
+
+{ "name": "ProBook 15 Laptop (2026)", "price": 1399.00, "stock_quantity": 8 }
+
+### Partial update (PATCH)
+PATCH {{base}}/1
+Content-Type: application/json
+
+{ "status": "archived" }
+
+### Change SKU to one that exists (409)
+PUT {{base}}/1
+Content-Type: application/json
+
+{ "sku": "MIN-001" }
+
+### Delete (204 No Content)
+DELETE {{base}}/1
